@@ -1,0 +1,31 @@
+zabbix_export:
+  version: '6.0'
+  date: '2023-10-05T19:01:59Z'
+  groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 15e756258e3e4f7b98435b927e57e118
+      template: 'TAMU Proxy SSL Monitor'
+      name: 'TAMU Proxy SSL Monitor'
+      description: 'Allows for expiration monitoring for all vhosts/certs on a single host, without specification of the sites/vhosts.'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 03ed7bd9df094a609652d96aa6f769eb
+          name: 'Expired Certificates Dates'
+          key: proxy_ssl.exp
+          delay: 1d
+          trends: '0'
+          value_type: TEXT
+          description: 'If the output contains any text, then the listed certificates will expire within the specified time period (default 2 weeks).  The output should contain "fqdn :: expiration date" on each line.'
+          triggers:
+            - uuid: 6cb0294b94d54a2aa5ddd6ee5cc0e24a
+              expression: 'length(last(/TAMU Proxy SSL Monitor/proxy_ssl.exp))>0'
+              name: 'Certificates have expired or will expire soon.'
+              priority: INFO
+              manual_close: 'YES'
+      macros:
+        - macro: '{$CERT_EXP_THRESH_SEC}'
+          value: '1209600'
+          description: 'Number of seconds in two weeks, 2*7*24*3600'
